@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use("/auth", auth);
 
 app.get("/", (req, res) => {
-    res.send("Api for Survey App");
+    res.send("BE-boilerplate v1.1");
   });
   
   // send back a 404 error for any unknown api request

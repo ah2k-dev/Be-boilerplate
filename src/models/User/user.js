@@ -50,6 +50,13 @@ const userSchema = new Schema({
   passwordResetTokenExpires: {
     type: Date,
   },
+  lastLogin: {
+    type: Date,
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 //hash password before saving

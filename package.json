@@ -1,5 +1,5 @@
 {
-  "name": "survey-app-server",
+  "name": "BE-boilerplate",
   "version": "1.0.0",
   "description": "",
   "main": "./src/index.js",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/decotechsgit/Survey-app-server.git"
+    "url": "git+https://github.com/ah2k-dev/userAuth-with-email-verification.git"
   },
   "author": "ah2k-dev",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/decotechsgit/Survey-app-server/issues"
+    "url": "https://github.com/ah2k-dev/userAuth-with-email-verification/issues"
   },
-  "homepage": "https://github.com/decotechsgit/Survey-app-server#readme",
+  "homepage": "https://github.com/ah2k-dev/userAuth-with-email-verification#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.0",
@@ -28,6 +28,7 @@
     "mongoose": "^6.5.4",
     "nodemailer": "^6.7.8",
     "nodemailer-sendgrid-transport": "^0.2.0",
+    "socket.io": "^4.6.1",
     "validator": "^13.7.0"
   },
   "devDependencies": {
