@@ -1,6 +1,7 @@
 const User = require("../models/User/user");
 const sendMail = require("../utils/sendMail");
-
+const SuccessHandler = require("../utils/SuccessHandler");
+const ErrorHandler = require("../utils/ErrorHandler");
 //register
 const register = async (req, res) => {
   try {
@@ -10,18 +11,15 @@ const register = async (req, res) => {
         /(?=[A-Za-z0-9@#$%^&+!=]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+!=])(?=.{8,}).*$/
       )
     ) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Password must contain atleast one uppercase letter, one special character and one number",
-      });
+      return ErrorHandler(
+        "Password must contain atleast one uppercase letter, one special character and one number",
+        400,
+        res
+      );
     }
     const user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists",
-      });
+      return ErrorHandler("User already exists", 400, res);
     }
     const newUser = await User.create({
       name,
@@ -29,12 +27,9 @@ const register = async (req, res) => {
       password,
     });
     newUser.save();
-    res.status(200).json({
-      success: true,
-      message: "User created successfully",
-    });
+    return SuccessHandler("User created successfully", 200, res);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return ErrorHandler(error.message, 500, res);
   }
 };
 
@@ -44,10 +39,7 @@ const requestEmailToken = async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "User does not exist",
-      });
+      return ErrorHandler("User does not exist", 400, res);
     }
     const emailVerificationToken = Math.floor(100000 + Math.random() * 900000);
     const emailVerificationTokenExpires = new Date(Date.now() + 10 * 60 * 1000);
@@ -57,12 +49,13 @@ const requestEmailToken = async (req, res) => {
     const message = `Your email verification token is ${emailVerificationToken} and it expires in 10 minutes`;
     const subject = `Email verification token`;
     await sendMail(email, subject, message);
-    res.status(200).json({
-      success: true,
-      message: "Email verification token sent",
-    });
+    return SuccessHandler(
+      `Email verification token sent to ${email}`,
+      200,
+      res
+    );
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return ErrorHandler(error.message, 500, res);
   }
 };
 
@@ -81,23 +74,16 @@ const verifyEmail = async (req, res) => {
       user.emailVerificationToken !== emailVerificationToken ||
       user.emailVerificationTokenExpires < Date.now()
     ) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid email verification token",
-      });
+      return ErrorHandler("Invalid token", 400, res);
     }
     user.emailVerified = true;
     user.emailVerificationToken = null;
     user.emailVerificationTokenExpires = null;
     jwtToken = user.getJWTToken();
     await user.save();
-    res.status(200).json({
-      success: true,
-      message: "Email verified successfully",
-      token: jwtToken,
-    });
+    return SuccessHandler("Email verified successfully", 200, res);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return ErrorHandler(error.message, 500, res);
   }
 };
 
@@ -107,26 +93,19 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid credentials",
-      });
+      return ErrorHandler("User does not exist", 400, res);
     }
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid credentials",
-      });
+      return ErrorHandler("Invalid credentials", 400, res);
+    }
+    if (!user.emailVerified) {
+      return ErrorHandler("Email not verified", 400, res);
     }
     jwtToken = user.getJWTToken();
-    res.status(200).json({
-      success: true,
-      message: "Logged in successfully",
-      token: jwtToken,
-    });
+    return SuccessHandler("Logged in successfully", 200, res);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return ErrorHandler(error.message, 500, res);
   }
 };
 
@@ -134,12 +113,9 @@ const login = async (req, res) => {
 const logout = async (req, res) => {
   try {
     req.user = null;
-    res.status(200).json({
-      success: true,
-      message: "Logged out successfully",
-    });
+    return SuccessHandler("Logged out successfully", 200, res);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return ErrorHandler(error.message, 500, res);
   }
 };
 
@@ -149,10 +125,7 @@ const forgotPassword = async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "User does not exist",
-      });
+      return ErrorHandler("User does not exist", 400, res);
     }
     const passwordResetToken = Math.floor(100000 + Math.random() * 900000);
     const passwordResetTokenExpires = new Date(Date.now() + 10 * 60 * 1000);
@@ -162,12 +135,9 @@ const forgotPassword = async (req, res) => {
     const message = `Your password reset token is ${resetPasswordToken} and it expires in 10 minutes`;
     const subject = `Password reset token`;
     await sendMail(email, subject, message);
-    res.status(200).json({
-      success: true,
-      message: `Password reset token sent to ${email}`,
-    });
+    return SuccessHandler(`Password reset token sent to ${email}`, 200, res);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return ErrorHandler(error.message, 500, res);
   }
 };
 
@@ -177,30 +147,21 @@ const resetPassword = async (req, res) => {
     const { email, passwordResetToken, password } = req.body;
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "User does not exist",
-      });
+      return ErrorHandler("User does not exist", 400, res);
     }
     if (
       user.passwordResetToken !== passwordResetToken ||
       user.passwordResetTokenExpires < Date.now()
     ) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid password reset token",
-      });
+      return ErrorHandler("Invalid token", 400, res);
     }
     user.password = password;
     user.passwordResetToken = null;
     user.passwordResetTokenExpires = null;
     await user.save();
-    res.status(200).json({
-      success: true,
-      message: "Password reset successfully",
-    });
+    return SuccessHandler("Password reset successfully", 200, res);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return ErrorHandler(error.message, 500, res);
   }
 };
 
@@ -213,35 +174,30 @@ const updatePassword = async (req, res) => {
         /(?=[A-Za-z0-9@#$%^&+!=]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+!=])(?=.{8,}).*$/
       )
     ) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Password must contain atleast one uppercase letter, one special character and one number",
-      });
+      return ErrorHandler(
+        "Password must contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number and 1 special character",
+        400,
+        res
+      );
     }
     const user = await User.findById(req.user.id).select("+password");
     const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid password",
-      });
+      return ErrorHandler("Invalid credentials", 400, res);
     }
     const samePasswords = await user.comparePassword(newPassword);
     if (samePasswords) {
-      return res.status(400).json({
-        success: false,
-        message: "New password cannot be same as old password",
-      });
+      return ErrorHandler(
+        "New password cannot be same as old password",
+        400,
+        res
+      );
     }
     user.password = newPassword;
     await user.save();
-    res.status(200).json({
-      success: true,
-      message: "Password updated successfully",
-    });
+    return SuccessHandler("Password updated successfully", 200, res);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return ErrorHandler(error.message, 500, res);
   }
 };
 
