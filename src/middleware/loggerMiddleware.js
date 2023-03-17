@@ -1,6 +1,7 @@
 const logger = require("../functions/logger");
-const ErrorHandler = (message, statusCode, req, res) => {
-  logger.error({
+
+module.exports = (req, res, next) => {
+  logger.info({
     origin: req.headers["origin"],
     method: req.method,
     url: req.url,
@@ -8,12 +9,6 @@ const ErrorHandler = (message, statusCode, req, res) => {
     params: req.params,
     query: req.query,
     date: new Date(),
-    message: message,
   });
-  return res.status(statusCode).json({
-    success: false,
-    message: message,
-  });
+  next();
 };
-
-module.exports = ErrorHandler;

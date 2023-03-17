@@ -14,12 +14,13 @@ const register = async (req, res) => {
       return ErrorHandler(
         "Password must contain atleast one uppercase letter, one special character and one number",
         400,
+        req,
         res
       );
     }
     const user = await User.findOne({ email });
     if (user) {
-      return ErrorHandler("User already exists", 400, res);
+      return ErrorHandler("User already exists", 400, req, res);
     }
     const newUser = await User.create({
       name,
@@ -29,7 +30,7 @@ const register = async (req, res) => {
     newUser.save();
     return SuccessHandler("User created successfully", 200, res);
   } catch (error) {
-    return ErrorHandler(error.message, 500, res);
+    return ErrorHandler(error.message, 500, req, res);
   }
 };
 
@@ -39,7 +40,7 @@ const requestEmailToken = async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return ErrorHandler("User does not exist", 400, res);
+      return ErrorHandler("User does not exist", 400, req, res);
     }
     const emailVerificationToken = Math.floor(100000 + Math.random() * 900000);
     const emailVerificationTokenExpires = new Date(Date.now() + 10 * 60 * 1000);
@@ -55,7 +56,7 @@ const requestEmailToken = async (req, res) => {
       res
     );
   } catch (error) {
-    return ErrorHandler(error.message, 500, res);
+    return ErrorHandler(error.message, 500, req, res);
   }
 };
 
@@ -74,7 +75,7 @@ const verifyEmail = async (req, res) => {
       user.emailVerificationToken !== emailVerificationToken ||
       user.emailVerificationTokenExpires < Date.now()
     ) {
-      return ErrorHandler("Invalid token", 400, res);
+      return ErrorHandler("Invalid token", 400, req, res);
     }
     user.emailVerified = true;
     user.emailVerificationToken = null;
@@ -83,7 +84,7 @@ const verifyEmail = async (req, res) => {
     await user.save();
     return SuccessHandler("Email verified successfully", 200, res);
   } catch (error) {
-    return ErrorHandler(error.message, 500, res);
+    return ErrorHandler(error.message, 500, req, res);
   }
 };
 
@@ -93,19 +94,19 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
-      return ErrorHandler("User does not exist", 400, res);
+      return ErrorHandler("User does not exist", req, 400, res);
     }
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return ErrorHandler("Invalid credentials", 400, res);
+      return ErrorHandler("Invalid credentials", 400, req, res);
     }
     if (!user.emailVerified) {
-      return ErrorHandler("Email not verified", 400, res);
+      return ErrorHandler("Email not verified", 400, req, res);
     }
     jwtToken = user.getJWTToken();
     return SuccessHandler("Logged in successfully", 200, res);
   } catch (error) {
-    return ErrorHandler(error.message, 500, res);
+    return ErrorHandler(error.message, 500, req, res);
   }
 };
 
@@ -115,7 +116,7 @@ const logout = async (req, res) => {
     req.user = null;
     return SuccessHandler("Logged out successfully", 200, res);
   } catch (error) {
-    return ErrorHandler(error.message, 500, res);
+    return ErrorHandler(error.message, 500, req, res);
   }
 };
 
@@ -125,7 +126,7 @@ const forgotPassword = async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return ErrorHandler("User does not exist", 400, res);
+      return ErrorHandler("User does not exist", 400, req, res);
     }
     const passwordResetToken = Math.floor(100000 + Math.random() * 900000);
     const passwordResetTokenExpires = new Date(Date.now() + 10 * 60 * 1000);
@@ -137,7 +138,7 @@ const forgotPassword = async (req, res) => {
     await sendMail(email, subject, message);
     return SuccessHandler(`Password reset token sent to ${email}`, 200, res);
   } catch (error) {
-    return ErrorHandler(error.message, 500, res);
+    return ErrorHandler(error.message, 500, req, res);
   }
 };
 
@@ -147,13 +148,13 @@ const resetPassword = async (req, res) => {
     const { email, passwordResetToken, password } = req.body;
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
-      return ErrorHandler("User does not exist", 400, res);
+      return ErrorHandler("User does not exist", 400, req, res);
     }
     if (
       user.passwordResetToken !== passwordResetToken ||
       user.passwordResetTokenExpires < Date.now()
     ) {
-      return ErrorHandler("Invalid token", 400, res);
+      return ErrorHandler("Invalid token", 400, req, res);
     }
     user.password = password;
     user.passwordResetToken = null;
@@ -161,7 +162,7 @@ const resetPassword = async (req, res) => {
     await user.save();
     return SuccessHandler("Password reset successfully", 200, res);
   } catch (error) {
-    return ErrorHandler(error.message, 500, res);
+    return ErrorHandler(error.message, 500, req, res);
   }
 };
 
@@ -177,19 +178,21 @@ const updatePassword = async (req, res) => {
       return ErrorHandler(
         "Password must contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number and 1 special character",
         400,
+        req,
         res
       );
     }
     const user = await User.findById(req.user.id).select("+password");
     const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
-      return ErrorHandler("Invalid credentials", 400, res);
+      return ErrorHandler("Invalid credentials", 400, req, res);
     }
     const samePasswords = await user.comparePassword(newPassword);
     if (samePasswords) {
       return ErrorHandler(
         "New password cannot be same as old password",
         400,
+        req,
         res
       );
     }
@@ -197,7 +200,7 @@ const updatePassword = async (req, res) => {
     await user.save();
     return SuccessHandler("Password updated successfully", 200, res);
   } catch (error) {
-    return ErrorHandler(error.message, 500, res);
+    return ErrorHandler(error.message, 500, req, res);
   }
 };
 
