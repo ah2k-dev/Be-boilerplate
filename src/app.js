@@ -6,24 +6,43 @@ const app = express();
 const { auth } = require("./router");
 const loggerMiddleware = require("./middleware/loggerMiddleware");
 const swaggerUi = require("swagger-ui-express");
-const swaggerJsDoc = require("swagger-jsdoc");
-const apiDoc = require("./apiDoc");
+const swaggerFile = require("./swagger_output.json"); // Generated Swagger file
+const swaggerAutogen = require("swagger-autogen")();
 
-// Swagger configuration options
-const swaggerOptions = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "Boilerplate API",
-      version: "1.1",
-    },
+// start
+const doc = {
+  info: {
+    title: "BE Boilerplate",
+    description: "BE Boilerplate for user authentication, email verification, socket.io, swagger, logger, etc.",
+    version: "1.0.0",
   },
-  // Path to the API routes files
-  apis: ["./src/apiDoc.js"],
+  host: "localhost:3000",
+  basePath: "/",
+  schemes: ["http"],
+  consumes: ["application/json"],
+  produces: ["application/json"],
+  // tags: [
+  //   {
+  //     name: "auth",
+  //     description: "APIs for managing authentication",
+  //   },
+  //   {
+  //     name: "user",
+  //     description: "APIs for managing users",
+  //   },
+  // ],
 };
 
-// Generate Swagger specification
-const swaggerSpec = swaggerJsDoc(swaggerOptions);
+const outputFile = "./src/swagger_output.json"; // Generated Swagger file
+const endpointsFiles = ['./src/router/auth.js']; // Path to the API routes files
+
+swaggerAutogen(outputFile, endpointsFiles, doc).then(() => {
+  console.log("Swagger file generated");
+});
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
+// end
 
 // Middlewares
 app.use(express.json());
@@ -32,7 +51,6 @@ app.options("*", cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(loggerMiddleware);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 //routes
 app.use("/auth", auth);
