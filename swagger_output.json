@@ -1,11 +1,11 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "BE Boilerplate",
-    "description": "BE Boilerplate for user authentication, email verification, socket.io, swagger, logger, etc.",
+    "title": "Cloudfront",
+    "description": "Cloudfront api endpoints",
     "version": "1.0.0"
   },
-  "host": "localhost:3000",
+  "host": "localhost:8001",
   "basePath": "/",
   "schemes": [
     "http"
@@ -17,15 +17,21 @@
     "application/json"
   ],
   "paths": {
-    "/logout": {
+    "/auth/logout": {
       "get": {
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [],
         "responses": {}
       }
     },
-    "/register": {
+    "/auth/register": {
       "post": {
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
           {
@@ -50,8 +56,11 @@
         "responses": {}
       }
     },
-    "/login": {
+    "/auth/login": {
       "post": {
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
           {
@@ -73,8 +82,11 @@
         "responses": {}
       }
     },
-    "/requestEmailToken": {
+    "/auth/requestEmailToken": {
       "post": {
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
           {
@@ -93,8 +105,11 @@
         "responses": {}
       }
     },
-    "/verifyEmail": {
+    "/auth/verifyEmail": {
       "post": {
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
           {
@@ -120,8 +135,11 @@
         }
       }
     },
-    "/forgotPassword": {
+    "/auth/forgotPassword": {
       "post": {
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
           {
@@ -140,8 +158,11 @@
         "responses": {}
       }
     },
-    "/resetPassword": {
+    "/auth/resetPassword": {
       "put": {
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
           {
@@ -166,8 +187,11 @@
         "responses": {}
       }
     },
-    "/updatePassword": {
+    "/auth/updatePassword": {
       "put": {
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
           {

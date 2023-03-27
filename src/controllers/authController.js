@@ -4,6 +4,7 @@ const SuccessHandler = require("../utils/SuccessHandler");
 const ErrorHandler = require("../utils/ErrorHandler");
 //register
 const register = async (req, res) => {
+  // #swagger.tags = ['auth']
   try {
     const { name, email, password } = req.body;
     if (
@@ -36,6 +37,8 @@ const register = async (req, res) => {
 
 //request email verification token
 const requestEmailToken = async (req, res) => {
+  // #swagger.tags = ['auth']
+
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
@@ -62,6 +65,8 @@ const requestEmailToken = async (req, res) => {
 
 //verify email token
 const verifyEmail = async (req, res) => {
+  // #swagger.tags = ['auth']
+
   try {
     const { email, emailVerificationToken } = req.body;
     const user = await User.findOne({ email });
@@ -90,6 +95,8 @@ const verifyEmail = async (req, res) => {
 
 //login
 const login = async (req, res) => {
+  // #swagger.tags = ['auth']
+
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select("+password");
@@ -112,6 +119,8 @@ const login = async (req, res) => {
 
 //logout
 const logout = async (req, res) => {
+  // #swagger.tags = ['auth']
+
   try {
     req.user = null;
     return SuccessHandler("Logged out successfully", 200, res);
@@ -122,6 +131,8 @@ const logout = async (req, res) => {
 
 //forgot password
 const forgotPassword = async (req, res) => {
+  // #swagger.tags = ['auth']
+
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
@@ -144,6 +155,8 @@ const forgotPassword = async (req, res) => {
 
 //reset password
 const resetPassword = async (req, res) => {
+  // #swagger.tags = ['auth']
+
   try {
     const { email, passwordResetToken, password } = req.body;
     const user = await User.findOne({ email }).select("+password");
@@ -168,6 +181,8 @@ const resetPassword = async (req, res) => {
 
 //update password
 const updatePassword = async (req, res) => {
+  // #swagger.tags = ['auth']
+
   try {
     const { currentPassword, newPassword } = req.body;
     if (
