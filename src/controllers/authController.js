@@ -101,7 +101,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
-      return ErrorHandler("User does not exist", req, 400, res);
+      return ErrorHandler("User does not exist", 400, req, res);
     }
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
@@ -111,7 +111,10 @@ const login = async (req, res) => {
       return ErrorHandler("Email not verified", 400, req, res);
     }
     jwtToken = user.getJWTToken();
-    return SuccessHandler("Logged in successfully", 200, res);
+    return SuccessHandler({
+      token: jwtToken,
+      user
+    }, 200, res);
   } catch (error) {
     return ErrorHandler(error.message, 500, req, res);
   }
