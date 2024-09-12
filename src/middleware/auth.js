@@ -1,6 +1,6 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/User/user");
-const dotenv = require("dotenv");
+import jwt from "jsonwebtoken";
+import User from "../models/User/user.js";
+import dotenv from "dotenv";
 
 dotenv.config({ path: ".././src/config/config.env" });
 
@@ -18,4 +18,15 @@ const isAuthenticated = async (req, res, next) => {
   }
 };
 
-module.exports = isAuthenticated;
+const isAdmin = async (req, res, next) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized" });
+    }
+    next();
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export { isAuthenticated, isAdmin };

@@ -1,4 +1,4 @@
-module.exports = (req, res, next) => {
+const restrictAccess = (req, res, next) => {
     const allowOrigins = [
       "http://localhost:3000",
       "http://localhost:3001",
@@ -12,3 +12,5 @@ module.exports = (req, res, next) => {
 
     next();
   };
+
+  export default restrictAccess;

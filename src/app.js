@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import ApiError from "./utils/ApiError.js";
-// import router from "./router";
+import router from "./router/index.js";
 import loggerMiddleware from "./middleware/loggerMiddleware.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerFile from "../swagger_output.json" assert { type: "json" };
@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(loggerMiddleware);
 
 // router index
-// app.use("/", router);
+app.use("/", router);
 // api doc
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 

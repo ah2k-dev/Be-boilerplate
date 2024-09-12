@@ -19,7 +19,4 @@ const addUser = async (user, socket) => {
     console.log("removed user", removedUser);
   };
 
-  module.exports = {
-    addUser,
-    removeUser,
-  }
+  export { addUser, removeUser };

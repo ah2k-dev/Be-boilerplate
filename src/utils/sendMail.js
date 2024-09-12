@@ -1,6 +1,10 @@
-const nodemailer = require("nodemailer");
-const dotenv = require("dotenv");
-const sendgridTransport = require("nodemailer-sendgrid-transport");
+// const nodemailer = require("nodemailer");
+// const dotenv = require("dotenv");
+// const sendgridTransport = require("nodemailer-sendgrid-transport");
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+import sendgridTransport from "nodemailer-sendgrid-transport";
+
 dotenv.config({ path: "./src/config/config.env" });
 const { createTransport } = nodemailer;
 
@@ -20,4 +24,4 @@ const sendMail = async (email, subject, text) => {
   });
 };
 
-module.exports = sendMail;
+export default sendMail;
