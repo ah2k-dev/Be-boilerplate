@@ -1,8 +1,8 @@
-const app = require("./app");
-const dotenv = require("dotenv");
-const connectDB = require("./config/db");
-const http = require("http");
-const socket = require("socket.io");
+import app from "./app.js";
+import dotenv from "dotenv";
+import connectDB from "./config/db.js";
+import http from "http";
+import {Server}from "socket.io";
 
 dotenv.config({ path: "./src/config/config.env" }); //load env vars
 
@@ -20,7 +20,7 @@ server.listen(PORT, () => {
 });
 
 //socket.io
-global.io = socket(server, {
+global.io = new Server(server, {
   cors: {
     origin: "*",
   },

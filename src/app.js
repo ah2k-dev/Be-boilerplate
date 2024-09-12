@@ -1,12 +1,13 @@
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const ApiError = require("./utils/ApiError");
+import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
+import ApiError from "./utils/ApiError.js";
+// import router from "./router";
+import loggerMiddleware from "./middleware/loggerMiddleware.js";
+import swaggerUi from "swagger-ui-express";
+import swaggerFile from "../swagger_output.json" assert { type: "json" };
+
 const app = express();
-const router = require("./router");
-const loggerMiddleware = require("./middleware/loggerMiddleware");
-const swaggerUi = require("swagger-ui-express");
-const swaggerFile = require("../swagger_output.json"); // Generated Swagger file
 
 // Middlewares
 app.use(express.json());
@@ -17,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(loggerMiddleware);
 
 // router index
-app.use("/", router);
+// app.use("/", router);
 // api doc
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
@@ -30,4 +31,4 @@ app.use((req, res, next) => {
   next(new ApiError(404, "Not found"));
 });
 
-module.exports = app;
+export default app;

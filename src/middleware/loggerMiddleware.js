@@ -1,6 +1,7 @@
-const logger = require("../functions/logger");
+// const logger = require("../functions/logger");
+import logger from "../functions/logger.js";
 
-module.exports = (req, res, next) => {
+ const loggerMiddleware = (req, res, next) => {
   logger.info({
     method: req.method,
     url: req.url,
@@ -9,3 +10,5 @@ module.exports = (req, res, next) => {
   });
   next();
 };
+
+export default loggerMiddleware;
