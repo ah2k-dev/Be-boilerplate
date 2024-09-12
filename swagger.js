@@ -1,11 +1,11 @@
-const swaggerAutogen = require("swagger-autogen")();
+import swaggerAutogen from "swagger-autogen";
 const doc = {
   info: {
-    title: "Cloudfront",
-    description: "Cloudfront api endpoints",
+    title: "BE Boilerplate",
+    description: "BE Boilerplate api endpoints",
     version: "1.0.0",
   },
-  host: "localhost:8001",
+  host: "localhost:8003",
   basePath: "/",
   schemes: ["http"],
   consumes: ["application/json"],
