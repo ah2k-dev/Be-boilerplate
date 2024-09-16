@@ -1,11 +1,11 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import ApiError from "./utils/ApiError.js";
-import router from "./router/index.js";
-import loggerMiddleware from "./middleware/loggerMiddleware.js";
+import ApiError from "./utils/ApiError";
+import router from "./router/index";
+import loggerMiddleware from "./middleware/loggerMiddleware";
 import swaggerUi from "swagger-ui-express";
-import swaggerFile from "../swagger_output.json" assert { type: "json" };
+import swaggerFile from "../swagger_output.json";
 
 const app = express();
 
@@ -22,12 +22,12 @@ app.use("/", router);
 // api doc
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response): void => {
   res.send("BE-boilerplate v1.1");
 });
 
 // send back a 404 error for any unknown api request
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction): void => {
   next(new ApiError(404, "Not found"));
 });
 
