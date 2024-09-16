@@ -20,6 +20,9 @@
   },
   "homepage": "https://github.com/ah2k-dev/userAuth-with-email-verification#readme",
   "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/validator": "^13.12.2",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",

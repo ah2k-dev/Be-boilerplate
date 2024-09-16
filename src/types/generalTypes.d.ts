@@ -1,4 +1,9 @@
 import { Request, Response } from 'express';
+import { IUser } from './modelTypes';
+
+export interface AuthRequest extends Request {
+  user: IUser;
+}
 
 export interface SendMailParams {
   email: string;
@@ -22,7 +27,7 @@ export interface ErrorHandlerParams {
 export type ErrorHandlerFunction = (params: ErrorHandlerParams) => Response;
 export type SuccessHandlerFunction<T> = (params: SuccessHandlerParams<T>) => Response;
 
-interface SwaggerDoc {
+export interface SwaggerDoc {
   info: {
     title: string;
     description: string;

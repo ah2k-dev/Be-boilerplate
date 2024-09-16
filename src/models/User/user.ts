@@ -1,12 +1,12 @@
-import mongoose from "mongoose";
+import mongoose, {Model} from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import validator from "validator";
-const Schema = mongoose.Schema;
+import { IUser } from "../../types/modelTypes";
 
 dotenv.config({ path: ".././src/config/config.env" });
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema<IUser>({
   name: {
     type: String,
     required: true,
@@ -15,7 +15,7 @@ const userSchema = new Schema({
     type: String,
     required: true,
     unique: true,
-    validate(value) {
+    validate(value: string) {
       if (!validator.isEmail(value)) {
         throw new Error("Invalid Email");
       }
@@ -24,7 +24,6 @@ const userSchema = new Schema({
   password: {
     type: String,
     required: true,
-    //validation will be before saving to db
   },
   role: {
     type: String,
@@ -33,7 +32,7 @@ const userSchema = new Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   emailVerified: {
     type: Boolean,
@@ -60,24 +59,24 @@ const userSchema = new Schema({
   },
 });
 
-//hash password before saving
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next;
+// Hash password before saving
+userSchema.pre<IUser>("save", async function (next) {
+  if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-//jwtToken
-userSchema.methods.getJWTToken = function () {
-  return jwt.sign({ _id: this._id }, process.env.JWT_SECRET);
+// JWT Token
+userSchema.methods.getJWTToken = function (): string {
+  return jwt.sign({ _id: this._id }, process.env.JWT_SECRET as string);
 };
 
-//compare password
-userSchema.methods.comparePassword = async function (enteredPassword) {
+// Compare password
+userSchema.methods.comparePassword = async function (enteredPassword: string): Promise<boolean> {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const User = mongoose.model("User", userSchema);
+const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
 
 export default User;
