@@ -1,42 +1,40 @@
-import { Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import User from "../models/User/user";
-import dotenv from "dotenv";
-import { AuthRequest } from "../types/generalTypes";
+// src/middleware/auth.ts
+import { RequestHandler } from 'express';
+import jwt from 'jsonwebtoken';
+import User from '../models/User/user';
+import dotenv from 'dotenv';
+import { AuthRequest } from '../types/generalTypes';
 
-dotenv.config({ path: "../src/config/config.env" });
+dotenv.config({ path: '../src/config/config.env' });
 
-const isAuthenticated = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const isAuthenticated: RequestHandler = async (req, res, next) => {
   try {
     const token = req.headers.authorization;
     if (!token) {
-      return res.status(401).json({ success: false, message: "Not logged in" });
+      return res.status(401).json({ success: false, message: 'Not logged in' });
     }
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { _id: string };
     const user = await User.findById(decoded._id).exec();
 
     if (!user) {
-      return res.status(401).json({ success: false, message: "User not found" });
+      return res.status(401).json({ success: false, message: 'Invalid token' });
     }
 
-    req.user = user;
+    (req as AuthRequest).user = user;
     next();
   } catch (error) {
     res.status(500).json({ success: false, message: (error as Error).message });
   }
 };
 
-const isAdmin = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const isAdmin: RequestHandler = async (req, res, next) => {
   try {
-    if (req.user.role !== "admin") {
-      return res.status(401).json({ success: false, message: "Not authorized" });
+    const user = (req as AuthRequest).user;
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
     }
-
     next();
   } catch (error) {
     res.status(500).json({ success: false, message: (error as Error).message });
   }
-}
-
-export { isAuthenticated, isAdmin };
+};
