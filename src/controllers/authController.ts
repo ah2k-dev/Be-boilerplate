@@ -1,11 +1,7 @@
-// const User = require("../models/User/user");
-// const sendMail = require("../utils/sendMail");
-// const SuccessHandler = require("../utils/SuccessHandler");
-// const ErrorHandler = require("../utils/ErrorHandler");
-import User from "../models/User/user.js";
-import sendMail from "../utils/sendMail.js";
-import SuccessHandler from "../utils/SuccessHandler.js";
-import ErrorHandler from "../utils/ErrorHandler.js";
+import User from "../models/User/user";
+import sendMail from "../utils/sendMail";
+import SuccessHandler from "../utils/SuccessHandler";
+import ErrorHandler from "../utils/ErrorHandler";
 //register
 const register = async (req, res) => {
   // #swagger.tags = ['auth']

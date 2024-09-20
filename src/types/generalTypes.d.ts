@@ -1,10 +1,14 @@
-import { Request, Response } from 'express';
+import { Request, Response, RequestHandler } from 'express';
 import { IUser } from './modelTypes';
 
 export interface AuthRequest extends Request {
   user: IUser;
 }
 
+// auth requset handler
+export interface AuthRequestHandler extends RequestHandler {
+  (req: AuthRequest, res: Response, next: RequestHandler): any;
+}
 export interface SendMailParams {
   email: string;
   subject: string;

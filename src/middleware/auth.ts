@@ -1,5 +1,5 @@
 // src/middleware/auth.ts
-import { RequestHandler } from 'express';
+import { RequestHandler, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User/user';
 import dotenv from 'dotenv';
