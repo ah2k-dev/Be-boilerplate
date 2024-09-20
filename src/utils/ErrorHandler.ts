@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ErrorHandlerParams, ErrorHandlerFunction } from '../types/generalTypes'; // Adjust the import path as needed
-import logger from '../functions/logger.js';
+import logger from '../functions/logger';
 
 const ErrorHandler: ErrorHandlerFunction = ({ message, statusCode, req, res }: ErrorHandlerParams): Response => {
   logger.error({

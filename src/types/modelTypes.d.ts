@@ -7,10 +7,10 @@ export interface IUser extends Document {
   role: "user" | "admin";
   createdAt: Date;
   emailVerified: boolean;
-  emailVerificationToken?: number;
-  emailVerificationTokenExpires?: Date;
-  passwordResetToken?: number;
-  passwordResetTokenExpires?: Date;
+  emailVerificationToken?: number|null;
+  emailVerificationTokenExpires?: Date|null;
+  passwordResetToken?: number|null;
+  passwordResetTokenExpires?: Date|null;
   lastLogin?: Date;
   isActive: boolean;
   getJWTToken(): string;

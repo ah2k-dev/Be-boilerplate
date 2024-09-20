@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-// import * as auth from "../controllers/authController";
+import * as auth from "../controllers/authController";
 import { isAuthenticated } from "../middleware/auth";
 
 const router: Router = express.Router();

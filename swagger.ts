@@ -3,13 +3,13 @@ import { SwaggerDoc } from './src/types/generalTypes'; // Ensure this path is co
 
 const doc: SwaggerDoc = {
   info: {
-    title: 'UrbanSoap BE',
-    description: 'UrbanSoap API endpoints',
+    title: 'Node + Express + MongoDB Ts Boilerplate',
+    description: 'API Documentation for Node + Express + MongoDB Ts Boilerplate',
     version: '1.0.0',
   },
-  host: 'urbansoap-danny-be-production.up.railway.app',
+  host: 'localhost:8006',
   basePath: '/',
-  schemes: ['https'],
+  schemes: ['http'],
   consumes: ['application/json'],
   produces: ['application/json'],
   tags: [],

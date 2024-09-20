@@ -1,75 +1,104 @@
 import User from "../models/User/user";
-import sendMail from "../utils/sendMail";
+import { IUser } from "../types/modelTypes";
+import sendMail from "../utils/SendMail";
 import SuccessHandler from "../utils/SuccessHandler";
 import ErrorHandler from "../utils/ErrorHandler";
+import { RequestHandler, Response } from "express";
 //register
-const register = async (req, res) => {
+const register: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
   try {
-    const { name, email, password } = req.body;
-    if (
-      !password.match(
-        /(?=[A-Za-z0-9@#$%^&+!=]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+!=])(?=.{8,}).*$/
-      )
-    ) {
-      return ErrorHandler(
-        "Password must contain atleast one uppercase letter, one special character and one number",
-        400,
-        req,
-        res
-      );
-    }
-    const user = await User.findOne({ email });
+    const {
+      name,
+      email,
+      password,
+    }: { name: string; email: string; password: string } = req.body;
+    const user: IUser | null = await User.findOne({ email });
     if (user) {
-      return ErrorHandler("User already exists", 400, req, res);
+      return ErrorHandler({
+        message: "User already exists",
+        statusCode: 400,
+        req,
+        res,
+      });
     }
-    const newUser = await User.create({
+    const newUser: IUser | null = await User.create({
       name,
       email,
       password,
     });
     newUser.save();
-    return SuccessHandler("User created successfully", 200, res);
-  } catch (error) {
-    return ErrorHandler(error.message, 500, req, res);
+    return SuccessHandler({
+      data: newUser,
+      statusCode: 201,
+      res,
+    });
+  } catch (error: any) {
+    return ErrorHandler({
+      message: error.message,
+      statusCode: 500,
+      req,
+      res,
+    });
   }
 };
 
 //request email verification token
-const requestEmailToken = async (req, res) => {
+const requestEmailToken: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
+    const { email }: { email: string } = req.body;
+    const user: IUser | null = await User.findOne({ email });
     if (!user) {
-      return ErrorHandler("User does not exist", 400, req, res);
+      return ErrorHandler({
+        message: "User does not exist",
+        statusCode: 400,
+        req,
+        res,
+      });
     }
-    const emailVerificationToken = Math.floor(100000 + Math.random() * 900000);
-    const emailVerificationTokenExpires = new Date(Date.now() + 10 * 60 * 1000);
+    const emailVerificationToken: number = Math.floor(
+      100000 + Math.random() * 900000
+    );
+    const emailVerificationTokenExpires: Date = new Date(
+      Date.now() + 10 * 60 * 1000
+    );
     user.emailVerificationToken = emailVerificationToken;
     user.emailVerificationTokenExpires = emailVerificationTokenExpires;
     await user.save();
-    const message = `Your email verification token is ${emailVerificationToken} and it expires in 10 minutes`;
-    const subject = `Email verification token`;
-    await sendMail(email, subject, message);
-    return SuccessHandler(
-      `Email verification token sent to ${email}`,
-      200,
-      res
-    );
-  } catch (error) {
-    return ErrorHandler(error.message, 500, req, res);
+    const message: string = `Your email verification token is ${emailVerificationToken} and it expires in 10 minutes`;
+    const subject: string = `Email verification token`;
+    await sendMail({
+      email,
+      subject,
+      text: message,
+    });
+    return SuccessHandler({
+      data: `Email verification token sent to ${email}`,
+      statusCode: 200,
+      res,
+    });
+  } catch (error: any) {
+    return ErrorHandler({
+      message: error.message,
+      statusCode: 500,
+      req,
+      res,
+    });
   }
 };
 
 //verify email token
-const verifyEmail = async (req, res) => {
+const verifyEmail: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const { email, emailVerificationToken } = req.body;
-    const user = await User.findOne({ email });
+    const {
+      email,
+      emailVerificationToken,
+    }: { email: string; emailVerificationToken: number } = req.body;
+    const user: IUser | null = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -78,147 +107,260 @@ const verifyEmail = async (req, res) => {
     }
     if (
       user.emailVerificationToken !== emailVerificationToken ||
-      user.emailVerificationTokenExpires < Date.now()
+      !user.emailVerificationTokenExpires || // Check if it exists
+      user.emailVerificationTokenExpires.getTime() < Date.now() // Compare timestamps
     ) {
-      return ErrorHandler("Invalid token", 400, req, res);
+      return ErrorHandler({
+        message: "Invalid token",
+        statusCode: 400,
+        req,
+        res,
+      });
     }
     user.emailVerified = true;
     user.emailVerificationToken = null;
     user.emailVerificationTokenExpires = null;
-    jwtToken = user.getJWTToken();
+    const jwtToken: string = user.getJWTToken();
     await user.save();
-    return SuccessHandler("Email verified successfully", 200, res);
-  } catch (error) {
-    return ErrorHandler(error.message, 500, req, res);
+    return SuccessHandler({
+      data: {
+        token: jwtToken,
+        user,
+      },
+      statusCode: 200,
+      res,
+    });
+  } catch (error: any) {
+    return ErrorHandler({
+      message: error.message,
+      statusCode: 500,
+      req,
+      res,
+    });
   }
 };
 
 //login
-const login = async (req, res) => {
+const login: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
-
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email }).select("+password");
+    const { email, password }: { email: string; password: string } = req.body;
+    const user: IUser | null = await User.findOne({ email }).select(
+      "+password"
+    );
     if (!user) {
-      return ErrorHandler("User does not exist", 400, req, res);
+      return ErrorHandler({
+        message: "Invalid credentials",
+        statusCode: 400,
+        req,
+        res,
+      });
     }
-    const isMatch = await user.comparePassword(password);
+    const isMatch: Boolean = await user.comparePassword(password);
     if (!isMatch) {
-      return ErrorHandler("Invalid credentials", 400, req, res);
+      return ErrorHandler({
+        message: "Invalid credentials",
+        statusCode: 400,
+        req,
+        res,
+      });
     }
     if (!user.emailVerified) {
-      return ErrorHandler("Email not verified", 400, req, res);
+      return ErrorHandler({
+        message: "Email not verified",
+        statusCode: 400,
+        req,
+        res,
+      });
     }
-    jwtToken = user.getJWTToken();
+    const jwtToken: string = user.getJWTToken();
     return SuccessHandler({
-      token: jwtToken,
-      user
-    }, 200, res);
-  } catch (error) {
-    return ErrorHandler(error.message, 500, req, res);
+      data: {
+        token: jwtToken,
+        user,
+      },
+      statusCode: 200,
+      res,
+    });
+  } catch (error: any) {
+    return ErrorHandler({
+      message: error.message,
+      statusCode: 500,
+      req,
+      res,
+    });
   }
 };
 
 //logout
-const logout = async (req, res) => {
+const logout: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
     req.user = null;
-    return SuccessHandler("Logged out successfully", 200, res);
-  } catch (error) {
-    return ErrorHandler(error.message, 500, req, res);
+    return SuccessHandler({
+      data: "Logged out successfully",
+      statusCode: 200,
+      res,
+    });
+  } catch (error: any) {
+    return ErrorHandler({
+      message: error.message,
+      statusCode: 500,
+      req,
+      res,
+    });
   }
 };
 
 //forgot password
-const forgotPassword = async (req, res) => {
+const forgotPassword: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
+    const { email }: { email: string } = req.body;
+    const user: IUser | null = await User.findOne({ email });
     if (!user) {
-      return ErrorHandler("User does not exist", 400, req, res);
+      return ErrorHandler({
+        message: "User does not exist",
+        statusCode: 400,
+        req,
+        res,
+      });
     }
-    const passwordResetToken = Math.floor(100000 + Math.random() * 900000);
-    const passwordResetTokenExpires = new Date(Date.now() + 10 * 60 * 1000);
+    const passwordResetToken: number = Math.floor(
+      100000 + Math.random() * 900000
+    );
+    const passwordResetTokenExpires: Date = new Date(
+      Date.now() + 10 * 60 * 1000
+    );
     user.passwordResetToken = passwordResetToken;
     user.passwordResetTokenExpires = passwordResetTokenExpires;
     await user.save();
-    const message = `Your password reset token is ${resetPasswordToken} and it expires in 10 minutes`;
-    const subject = `Password reset token`;
-    await sendMail(email, subject, message);
-    return SuccessHandler(`Password reset token sent to ${email}`, 200, res);
-  } catch (error) {
-    return ErrorHandler(error.message, 500, req, res);
+    const message: string = `Your password reset token is ${passwordResetToken} and it expires in 10 minutes`;
+    const subject: string = `Password reset token`;
+    await sendMail({ email, subject, text: message });
+    return SuccessHandler({
+      data: `Password reset token sent to ${email}`,
+      statusCode: 200,
+      res,
+    });
+  } catch (error: any) {
+    return ErrorHandler({
+      message: error.message,
+      statusCode: 500,
+      req,
+      res,
+    });
   }
 };
 
 //reset password
-const resetPassword = async (req, res) => {
+const resetPassword: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const { email, passwordResetToken, password } = req.body;
-    const user = await User.findOne({ email }).select("+password");
+    const {
+      email,
+      passwordResetToken,
+      password,
+    }: { email: string; passwordResetToken: number; password: string } =
+      req.body;
+    const user: IUser | null = await User.findOne({ email }).select(
+      "+password"
+    );
     if (!user) {
-      return ErrorHandler("User does not exist", 400, req, res);
+      return ErrorHandler({
+        message: "User does not exist",
+        statusCode: 400,
+        req,
+        res,
+      });
     }
     if (
       user.passwordResetToken !== passwordResetToken ||
-      user.passwordResetTokenExpires < Date.now()
+      !user.passwordResetTokenExpires || // Check if it exists
+      user.passwordResetTokenExpires?.getTime() < Date.now()
     ) {
-      return ErrorHandler("Invalid token", 400, req, res);
+      return ErrorHandler({
+        message: "Invalid token",
+        statusCode: 400,
+        req,
+        res,
+      });
     }
     user.password = password;
     user.passwordResetToken = null;
     user.passwordResetTokenExpires = null;
     await user.save();
-    return SuccessHandler("Password reset successfully", 200, res);
-  } catch (error) {
-    return ErrorHandler(error.message, 500, req, res);
+    return SuccessHandler({
+      data: "Password reset successfully",
+      statusCode: 200,
+      res,
+    });
+  } catch (error: any) {
+    return ErrorHandler({
+      message: error.message,
+      statusCode: 500,
+      req,
+      res,
+    });
   }
 };
 
 //update password
-const updatePassword = async (req, res) => {
+const updatePassword: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const { currentPassword, newPassword } = req.body;
-    if (
-      !newPassword.match(
-        /(?=[A-Za-z0-9@#$%^&+!=]+$)^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+!=])(?=.{8,}).*$/
-      )
-    ) {
-      return ErrorHandler(
-        "Password must contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number and 1 special character",
-        400,
+    const {
+      currentPassword,
+      newPassword,
+    }: { currentPassword: string; newPassword: string } = req.body;
+
+    const user: IUser | null = await User.findById(req.user?._id).select(
+      "+password"
+    );
+    if (!user) {
+      return ErrorHandler({
+        message: "User does not exist",
+        statusCode: 400,
         req,
-        res
-      );
+        res,
+      });
     }
-    const user = await User.findById(req.user.id).select("+password");
-    const isMatch = await user.comparePassword(currentPassword);
+    const isMatch = await user?.comparePassword(currentPassword);
     if (!isMatch) {
-      return ErrorHandler("Invalid credentials", 400, req, res);
-    }
-    const samePasswords = await user.comparePassword(newPassword);
-    if (samePasswords) {
-      return ErrorHandler(
-        "New password cannot be same as old password",
-        400,
+      return ErrorHandler({
+        message: "Invalid credentials",
+        statusCode: 400,
         req,
-        res
-      );
+        res,
+      });
+    }
+    const samePasswords = await user?.comparePassword(newPassword);
+    if (samePasswords) {
+      return ErrorHandler({
+        message: "New password cannot be the same as the current password",
+        statusCode: 400,
+        req,
+        res,
+      });
     }
     user.password = newPassword;
     await user.save();
-    return SuccessHandler("Password updated successfully", 200, res);
-  } catch (error) {
-    return ErrorHandler(error.message, 500, req, res);
+    return SuccessHandler({
+      data: "Password updated successfully",
+      statusCode: 200,
+      res,
+    });
+  } catch (error: any) {
+    return ErrorHandler({
+      message: error.message,
+      statusCode: 500,
+      req,
+      res,
+    });
   }
 };
 

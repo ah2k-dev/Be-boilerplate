@@ -1,14 +1,12 @@
-import { Request, Response, RequestHandler } from 'express';
-import { IUser } from './modelTypes';
+import { Request, Response, RequestHandler } from "express";
+import { IUser } from "./modelTypes";
 
-export interface AuthRequest extends Request {
-  user: IUser;
+declare module "express-serve-static-core" {
+  interface Request {
+    user?: IUser | null;
+  }
 }
 
-// auth requset handler
-export interface AuthRequestHandler extends RequestHandler {
-  (req: AuthRequest, res: Response, next: RequestHandler): any;
-}
 export interface SendMailParams {
   email: string;
   subject: string;
@@ -29,7 +27,9 @@ export interface ErrorHandlerParams {
 }
 
 export type ErrorHandlerFunction = (params: ErrorHandlerParams) => Response;
-export type SuccessHandlerFunction<T> = (params: SuccessHandlerParams<T>) => Response;
+export type SuccessHandlerFunction<T> = (
+  params: SuccessHandlerParams<T>
+) => Response;
 
 export interface SwaggerDoc {
   info: {

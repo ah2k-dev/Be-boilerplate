@@ -14,7 +14,7 @@
     "paths": {
       "@types/*": ["types/*"]
     },
-    "types": ["node"], // This includes Node.js types
+    "types": ["node", "express"], // This includes Node.js types
     "typeRoots": ["./node_modules/@types", "./src/types"] // Ensure this path is correct
   },
   "include": ["src/**/*.ts", "src/types/**/*.d.ts"], // Make sure type definitions are included

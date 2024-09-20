@@ -3,7 +3,6 @@ import { RequestHandler, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User/user';
 import dotenv from 'dotenv';
-import { AuthRequest } from '../types/generalTypes';
 
 dotenv.config({ path: '../src/config/config.env' });
 
@@ -20,7 +19,7 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Invalid token' });
     }
 
-    (req as AuthRequest).user = user;
+    req.user = user;
     next();
   } catch (error) {
     res.status(500).json({ success: false, message: (error as Error).message });
@@ -29,7 +28,7 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
 
 export const isAdmin: RequestHandler = async (req, res, next) => {
   try {
-    const user = (req as AuthRequest).user;
+    const user = req.user;
     if (!user || user.role !== 'admin') {
       return res.status(403).json({ success: false, message: 'Not authorized' });
     }
