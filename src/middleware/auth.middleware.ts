@@ -1,7 +1,7 @@
 // src/middleware/auth.ts
 import { RequestHandler, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import User from '../models/User/user';
+import User from '../models/User/user.model';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '../src/config/config.env' });

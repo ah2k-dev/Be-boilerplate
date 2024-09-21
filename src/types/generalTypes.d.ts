@@ -1,5 +1,5 @@
 import { Request, Response, RequestHandler } from "express";
-import { IUser } from "./modelTypes";
+import { IUser } from "./models/user";
 
 declare module "express-serve-static-core" {
   interface Request {

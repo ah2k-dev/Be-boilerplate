@@ -1,9 +1,9 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import ApiError from "./utils/ApiError";
-import router from "./router/index";
-import loggerMiddleware from "./middleware/loggerMiddleware";
+import ApiError from "./utils/apiError";
+import router from "./routes/index";
+import loggerMiddleware from "./middleware/logger.middleware";
 import swaggerUi from "swagger-ui-express";
 import swaggerFile from "../swagger_output.json";
 

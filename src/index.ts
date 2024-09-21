@@ -1,6 +1,6 @@
 import app from "./app";
 import dotenv from "dotenv";
-import connectDB from "./config/db";
+import connectDB from "./config/db.config";
 import http from "http";
 
 dotenv.config({ path: "./src/config/config.env" }); //load env vars

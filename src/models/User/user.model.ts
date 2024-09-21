@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import validator from "validator";
-import { IUser } from "../../types/modelTypes";
+import { IUser } from "../../types/models/user";
 
 dotenv.config({ path: ".././src/config/config.env" });
 const userSchema = new mongoose.Schema<IUser>({

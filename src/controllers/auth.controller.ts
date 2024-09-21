@@ -1,18 +1,15 @@
-import User from "../models/User/user";
-import { IUser } from "../types/modelTypes";
-import sendMail from "../utils/SendMail";
-import SuccessHandler from "../utils/SuccessHandler";
-import ErrorHandler from "../utils/ErrorHandler";
+import User from "../models/User/user.model";
+import { IUser } from "../types/models/user";
+import sendMail from "../utils/sendMail";
+import SuccessHandler from "../utils/successHandler";
+import ErrorHandler from "../utils/errorHandler";
 import { RequestHandler, Response } from "express";
+import * as authTypes from "../types/controllers/auth";
 //register
 const register: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
   try {
-    const {
-      name,
-      email,
-      password,
-    }: { name: string; email: string; password: string } = req.body;
+    const { name, email, password }: authTypes.RegisterBody = req.body;
     const user: IUser | null = await User.findOne({ email });
     if (user) {
       return ErrorHandler({
@@ -48,7 +45,7 @@ const requestEmailToken: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const { email }: { email: string } = req.body;
+    const { email }: authTypes.RequestEmailTokenBody = req.body;
     const user: IUser | null = await User.findOne({ email });
     if (!user) {
       return ErrorHandler({
@@ -94,10 +91,8 @@ const verifyEmail: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const {
-      email,
-      emailVerificationToken,
-    }: { email: string; emailVerificationToken: number } = req.body;
+    const { email, emailVerificationToken }: authTypes.VerifyEmailTokenBody =
+      req.body;
     const user: IUser | null = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({
@@ -144,7 +139,7 @@ const verifyEmail: RequestHandler = async (req, res) => {
 const login: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
   try {
-    const { email, password }: { email: string; password: string } = req.body;
+    const { email, password }: authTypes.LoginBody = req.body;
     const user: IUser | null = await User.findOne({ email }).select(
       "+password"
     );
@@ -218,7 +213,7 @@ const forgotPassword: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const { email }: { email: string } = req.body;
+    const { email }: authTypes.RequestEmailTokenBody = req.body;
     const user: IUser | null = await User.findOne({ email });
     if (!user) {
       return ErrorHandler({
@@ -260,11 +255,7 @@ const resetPassword: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const {
-      email,
-      passwordResetToken,
-      password,
-    }: { email: string; passwordResetToken: number; password: string } =
+    const { email, passwordResetToken, password }: authTypes.ResetPasswordBody =
       req.body;
     const user: IUser | null = await User.findOne({ email }).select(
       "+password"
@@ -313,10 +304,8 @@ const updatePassword: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const {
-      currentPassword,
-      newPassword,
-    }: { currentPassword: string; newPassword: string } = req.body;
+    const { currentPassword, newPassword }: authTypes.UpdaatePasswordBody =
+      req.body;
 
     const user: IUser | null = await User.findById(req.user?._id).select(
       "+password"
