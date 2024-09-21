@@ -35,5 +35,5 @@ export {
   VerifyEmailTokenBody,
   LoginBody,
   ResetPasswordBody,
-  UpdaatePasswordBody,
+  UpdaatePasswordBody
 };

@@ -1,15 +1,15 @@
-import mongoose, {Model} from "mongoose";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-import validator from "validator";
-import { IUser } from "../../types/models/user";
+import mongoose, { Model } from 'mongoose';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+import validator from 'validator';
+import { IUser } from '../../types/models/user';
 
-dotenv.config({ path: ".././src/config/config.env" });
+dotenv.config({ path: '.././src/config/config.env' });
 const userSchema = new mongoose.Schema<IUser>({
   name: {
     type: String,
-    required: true,
+    required: true
   },
   email: {
     type: String,
@@ -17,51 +17,51 @@ const userSchema = new mongoose.Schema<IUser>({
     unique: true,
     validate(value: string) {
       if (!validator.isEmail(value)) {
-        throw new Error("Invalid Email");
+        throw new Error('Invalid Email');
       }
-    },
+    }
   },
   password: {
     type: String,
-    required: true,
+    required: true
   },
   role: {
     type: String,
-    enum: ["user", "admin"],
-    default: "user",
+    enum: ['user', 'admin'],
+    default: 'user'
   },
   createdAt: {
     type: Date,
-    default: Date.now,
+    default: Date.now
   },
   emailVerified: {
     type: Boolean,
-    default: false,
+    default: false
   },
   emailVerificationToken: {
-    type: Number,
+    type: Number
   },
   emailVerificationTokenExpires: {
-    type: Date,
+    type: Date
   },
   passwordResetToken: {
-    type: Number,
+    type: Number
   },
   passwordResetTokenExpires: {
-    type: Date,
+    type: Date
   },
   lastLogin: {
-    type: Date,
+    type: Date
   },
   isActive: {
     type: Boolean,
-    default: true,
-  },
+    default: true
+  }
 });
 
 // Hash password before saving
-userSchema.pre<IUser>("save", async function (next) {
-  if (!this.isModified("password")) return next();
+userSchema.pre<IUser>('save', async function (next) {
+  if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
@@ -73,10 +73,12 @@ userSchema.methods.getJWTToken = function (): string {
 };
 
 // Compare password
-userSchema.methods.comparePassword = async function (enteredPassword: string): Promise<boolean> {
+userSchema.methods.comparePassword = async function (
+  enteredPassword: string
+): Promise<boolean> {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
+const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
 
 export default User;

@@ -7,10 +7,14 @@ dotenv.config({ path: './src/config/config.env' });
 
 const { createTransport } = nodemailer;
 
-const SendMail = async ({ email, subject, text }: SendMailParams): Promise<void> => {
+const SendMail = async ({
+  email,
+  subject,
+  text
+}: SendMailParams): Promise<void> => {
   const transport: Transporter = createTransport(
     nodemailerSendgrid({
-        apiKey: process.env.NODEMAILER_API_KEY as string,
+      apiKey: process.env.NODEMAILER_API_KEY as string
     })
   );
 
@@ -18,7 +22,7 @@ const SendMail = async ({ email, subject, text }: SendMailParams): Promise<void>
     from: 'ah2k.dev@gmail.com',
     to: email,
     subject,
-    text,
+    text
   };
 
   await transport.sendMail(mailOptions);

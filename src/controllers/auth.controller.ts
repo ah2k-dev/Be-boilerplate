@@ -1,10 +1,10 @@
-import User from "../models/User/user.model";
-import { IUser } from "../types/models/user";
-import sendMail from "../utils/sendMail";
-import SuccessHandler from "../utils/successHandler";
-import ErrorHandler from "../utils/errorHandler";
-import { RequestHandler, Response } from "express";
-import * as authTypes from "../types/controllers/auth";
+import User from '../models/User/user.model';
+import { IUser } from '../types/models/user';
+import sendMail from '../utils/sendMail';
+import SuccessHandler from '../utils/successHandler';
+import ErrorHandler from '../utils/errorHandler';
+import { RequestHandler } from 'express';
+import * as authTypes from '../types/controllers/auth';
 //register
 const register: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
@@ -13,29 +13,29 @@ const register: RequestHandler = async (req, res) => {
     const user: IUser | null = await User.findOne({ email });
     if (user) {
       return ErrorHandler({
-        message: "User already exists",
+        message: 'User already exists',
         statusCode: 400,
         req,
-        res,
+        res
       });
     }
     const newUser: IUser | null = await User.create({
       name,
       email,
-      password,
+      password
     });
     newUser.save();
     return SuccessHandler({
       data: newUser,
       statusCode: 201,
-      res,
+      res
     });
-  } catch (error: any) {
+  } catch (error) {
     return ErrorHandler({
-      message: error.message,
+      message: (error as Error).message,
       statusCode: 500,
       req,
-      res,
+      res
     });
   }
 };
@@ -49,10 +49,10 @@ const requestEmailToken: RequestHandler = async (req, res) => {
     const user: IUser | null = await User.findOne({ email });
     if (!user) {
       return ErrorHandler({
-        message: "User does not exist",
+        message: 'User does not exist',
         statusCode: 400,
         req,
-        res,
+        res
       });
     }
     const emailVerificationToken: number = Math.floor(
@@ -69,19 +69,19 @@ const requestEmailToken: RequestHandler = async (req, res) => {
     await sendMail({
       email,
       subject,
-      text: message,
+      text: message
     });
     return SuccessHandler({
       data: `Email verification token sent to ${email}`,
       statusCode: 200,
-      res,
+      res
     });
-  } catch (error: any) {
+  } catch (error) {
     return ErrorHandler({
-      message: error.message,
+      message: (error as Error).message,
       statusCode: 500,
       req,
-      res,
+      res
     });
   }
 };
@@ -97,7 +97,7 @@ const verifyEmail: RequestHandler = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "User does not exist",
+        message: 'User does not exist'
       });
     }
     if (
@@ -106,10 +106,10 @@ const verifyEmail: RequestHandler = async (req, res) => {
       user.emailVerificationTokenExpires.getTime() < Date.now() // Compare timestamps
     ) {
       return ErrorHandler({
-        message: "Invalid token",
+        message: 'Invalid token',
         statusCode: 400,
         req,
-        res,
+        res
       });
     }
     user.emailVerified = true;
@@ -120,17 +120,17 @@ const verifyEmail: RequestHandler = async (req, res) => {
     return SuccessHandler({
       data: {
         token: jwtToken,
-        user,
+        user
       },
       statusCode: 200,
-      res,
+      res
     });
-  } catch (error: any) {
+  } catch (error) {
     return ErrorHandler({
-      message: error.message,
+      message: (error as Error).message,
       statusCode: 500,
       req,
-      res,
+      res
     });
   }
 };
@@ -141,48 +141,48 @@ const login: RequestHandler = async (req, res) => {
   try {
     const { email, password }: authTypes.LoginBody = req.body;
     const user: IUser | null = await User.findOne({ email }).select(
-      "+password"
+      '+password'
     );
     if (!user) {
       return ErrorHandler({
-        message: "Invalid credentials",
+        message: 'Invalid credentials',
         statusCode: 400,
         req,
-        res,
+        res
       });
     }
-    const isMatch: Boolean = await user.comparePassword(password);
+    const isMatch: boolean = await user.comparePassword(password);
     if (!isMatch) {
       return ErrorHandler({
-        message: "Invalid credentials",
+        message: 'Invalid credentials',
         statusCode: 400,
         req,
-        res,
+        res
       });
     }
     if (!user.emailVerified) {
       return ErrorHandler({
-        message: "Email not verified",
+        message: 'Email not verified',
         statusCode: 400,
         req,
-        res,
+        res
       });
     }
     const jwtToken: string = user.getJWTToken();
     return SuccessHandler({
       data: {
         token: jwtToken,
-        user,
+        user
       },
       statusCode: 200,
-      res,
+      res
     });
-  } catch (error: any) {
+  } catch (error) {
     return ErrorHandler({
-      message: error.message,
+      message: (error as Error).message,
       statusCode: 500,
       req,
-      res,
+      res
     });
   }
 };
@@ -194,16 +194,16 @@ const logout: RequestHandler = async (req, res) => {
   try {
     req.user = null;
     return SuccessHandler({
-      data: "Logged out successfully",
+      data: 'Logged out successfully',
       statusCode: 200,
-      res,
+      res
     });
-  } catch (error: any) {
+  } catch (error) {
     return ErrorHandler({
-      message: error.message,
+      message: (error as Error).message,
       statusCode: 500,
       req,
-      res,
+      res
     });
   }
 };
@@ -217,10 +217,10 @@ const forgotPassword: RequestHandler = async (req, res) => {
     const user: IUser | null = await User.findOne({ email });
     if (!user) {
       return ErrorHandler({
-        message: "User does not exist",
+        message: 'User does not exist',
         statusCode: 400,
         req,
-        res,
+        res
       });
     }
     const passwordResetToken: number = Math.floor(
@@ -238,14 +238,14 @@ const forgotPassword: RequestHandler = async (req, res) => {
     return SuccessHandler({
       data: `Password reset token sent to ${email}`,
       statusCode: 200,
-      res,
+      res
     });
-  } catch (error: any) {
+  } catch (error) {
     return ErrorHandler({
-      message: error.message,
+      message: (error as Error).message,
       statusCode: 500,
       req,
-      res,
+      res
     });
   }
 };
@@ -258,14 +258,14 @@ const resetPassword: RequestHandler = async (req, res) => {
     const { email, passwordResetToken, password }: authTypes.ResetPasswordBody =
       req.body;
     const user: IUser | null = await User.findOne({ email }).select(
-      "+password"
+      '+password'
     );
     if (!user) {
       return ErrorHandler({
-        message: "User does not exist",
+        message: 'User does not exist',
         statusCode: 400,
         req,
-        res,
+        res
       });
     }
     if (
@@ -274,10 +274,10 @@ const resetPassword: RequestHandler = async (req, res) => {
       user.passwordResetTokenExpires?.getTime() < Date.now()
     ) {
       return ErrorHandler({
-        message: "Invalid token",
+        message: 'Invalid token',
         statusCode: 400,
         req,
-        res,
+        res
       });
     }
     user.password = password;
@@ -285,16 +285,16 @@ const resetPassword: RequestHandler = async (req, res) => {
     user.passwordResetTokenExpires = null;
     await user.save();
     return SuccessHandler({
-      data: "Password reset successfully",
+      data: 'Password reset successfully',
       statusCode: 200,
-      res,
+      res
     });
-  } catch (error: any) {
+  } catch (error) {
     return ErrorHandler({
-      message: error.message,
+      message: (error as Error).message,
       statusCode: 500,
       req,
-      res,
+      res
     });
   }
 };
@@ -308,47 +308,47 @@ const updatePassword: RequestHandler = async (req, res) => {
       req.body;
 
     const user: IUser | null = await User.findById(req.user?._id).select(
-      "+password"
+      '+password'
     );
     if (!user) {
       return ErrorHandler({
-        message: "User does not exist",
+        message: 'User does not exist',
         statusCode: 400,
         req,
-        res,
+        res
       });
     }
     const isMatch = await user?.comparePassword(currentPassword);
     if (!isMatch) {
       return ErrorHandler({
-        message: "Invalid credentials",
+        message: 'Invalid credentials',
         statusCode: 400,
         req,
-        res,
+        res
       });
     }
     const samePasswords = await user?.comparePassword(newPassword);
     if (samePasswords) {
       return ErrorHandler({
-        message: "New password cannot be the same as the current password",
+        message: 'New password cannot be the same as the current password',
         statusCode: 400,
         req,
-        res,
+        res
       });
     }
     user.password = newPassword;
     await user.save();
     return SuccessHandler({
-      data: "Password updated successfully",
+      data: 'Password updated successfully',
       statusCode: 200,
-      res,
+      res
     });
-  } catch (error: any) {
+  } catch (error) {
     return ErrorHandler({
-      message: error.message,
+      message: (error as Error).message,
       statusCode: 500,
       req,
-      res,
+      res
     });
   }
 };
@@ -361,5 +361,5 @@ export {
   logout,
   forgotPassword,
   resetPassword,
-  updatePassword,
+  updatePassword
 };

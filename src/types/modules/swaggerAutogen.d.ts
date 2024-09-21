@@ -1,16 +1,14 @@
-// src/types/swagger-autogen.d.ts
 declare module 'swagger-autogen' {
-    interface SwaggerAutogenResult {
-      success?: boolean;
-      data?: any;
-    }
-  
-    const swaggerAutogen: (
-      outputFile: string,
-      endpointsFiles: string[],
-      data?: any
-    ) => Promise<SwaggerAutogenResult | false>;
-  
-    export default swaggerAutogen;
+  interface SwaggerAutogenResult<T = unknown> {
+    success?: boolean;
+    data?: T;
   }
-  
+
+  const swaggerAutogen: <T = unknown>(
+    outputFile: string,
+    endpointsFiles: string[],
+    data?: T
+  ) => Promise<SwaggerAutogenResult<T> | false>;
+
+  export default swaggerAutogen;
+}
