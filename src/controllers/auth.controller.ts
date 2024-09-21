@@ -9,7 +9,7 @@ import * as authTypes from '../types/controllers/auth';
 const register: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
   try {
-    const { name, email, password }: authTypes.RegisterBody = req.body;
+    const { name, email, password } = req.body as authTypes.RegisterBody;
     const user: IUser | null = await User.findOne({ email });
     if (user) {
       return ErrorHandler({
@@ -45,7 +45,7 @@ const requestEmailToken: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const { email }: authTypes.RequestEmailTokenBody = req.body;
+    const { email } = req.body as authTypes.RequestEmailTokenBody;
     const user: IUser | null = await User.findOne({ email });
     if (!user) {
       return ErrorHandler({
@@ -91,8 +91,8 @@ const verifyEmail: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const { email, emailVerificationToken }: authTypes.VerifyEmailTokenBody =
-      req.body;
+    const { email, emailVerificationToken } =
+      req.body as authTypes.VerifyEmailTokenBody;
     const user: IUser | null = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({
@@ -139,7 +139,7 @@ const verifyEmail: RequestHandler = async (req, res) => {
 const login: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
   try {
-    const { email, password }: authTypes.LoginBody = req.body;
+    const { email, password } = req.body as authTypes.LoginBody;
     const user: IUser | null = await User.findOne({ email }).select(
       '+password'
     );
@@ -213,7 +213,7 @@ const forgotPassword: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const { email }: authTypes.RequestEmailTokenBody = req.body;
+    const { email } = req.body as authTypes.RequestEmailTokenBody;
     const user: IUser | null = await User.findOne({ email });
     if (!user) {
       return ErrorHandler({
@@ -255,8 +255,8 @@ const resetPassword: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const { email, passwordResetToken, password }: authTypes.ResetPasswordBody =
-      req.body;
+    const { email, passwordResetToken, password } =
+      req.body as authTypes.ResetPasswordBody;
     const user: IUser | null = await User.findOne({ email }).select(
       '+password'
     );
@@ -304,8 +304,8 @@ const updatePassword: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    const { currentPassword, newPassword }: authTypes.UpdaatePasswordBody =
-      req.body;
+    const { currentPassword, newPassword } =
+      req.body as authTypes.UpdaatePasswordBody;
 
     const user: IUser | null = await User.findById(req.user?._id).select(
       '+password'

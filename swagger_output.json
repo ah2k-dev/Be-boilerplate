@@ -5,7 +5,7 @@
     "description": "API Documentation for Node + Express + MongoDB Ts Boilerplate",
     "version": "1.0.0"
   },
-  "host": "localhost:8006",
+  "host": "localhost:8000",
   "basePath": "/",
   "schemes": ["http"],
   "consumes": ["application/json"],
@@ -43,7 +43,11 @@
             }
           }
         ],
-        "responses": {}
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          }
+        }
       }
     },
     "/auth/login": {
@@ -67,7 +71,11 @@
             }
           }
         ],
-        "responses": {}
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          }
+        }
       }
     },
     "/auth/requestEmailToken": {
@@ -88,7 +96,11 @@
             }
           }
         ],
-        "responses": {}
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          }
+        }
       }
     },
     "/auth/verifyEmail": {
@@ -137,7 +149,11 @@
             }
           }
         ],
-        "responses": {}
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          }
+        }
       }
     },
     "/auth/resetPassword": {
@@ -164,7 +180,11 @@
             }
           }
         ],
-        "responses": {}
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          }
+        }
       }
     },
     "/auth/updatePassword": {
@@ -194,6 +214,9 @@
           }
         ],
         "responses": {
+          "400": {
+            "description": "Bad Request"
+          },
           "401": {
             "description": "Unauthorized"
           },

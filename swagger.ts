@@ -8,7 +8,7 @@ const doc: SwaggerDoc = {
       'API Documentation for Node + Express + MongoDB Ts Boilerplate',
     version: '1.0.0'
   },
-  host: 'localhost:8006',
+  host: 'localhost:8000',
   basePath: '/',
   schemes: ['http'],
   consumes: ['application/json'],
@@ -17,7 +17,7 @@ const doc: SwaggerDoc = {
 };
 
 const outputFile: string = './swagger_output.json'; // Generated Swagger file
-const endpointsFiles: string[] = ['./src/router/index.ts']; // Path to the API routes files
+const endpointsFiles: string[] = ['./src/routes/index.ts']; // Path to the API routes files
 
 const generateSwagger = async (): Promise<void> => {
   try {

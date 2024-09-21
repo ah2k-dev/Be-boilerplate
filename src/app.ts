@@ -8,7 +8,6 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerFile from '../swagger_output.json';
 
 const app = express();
-
 // Middlewares
 app.use(express.json());
 app.use(cors());
