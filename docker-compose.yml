@@ -1,0 +1,13 @@
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - '8001:8001'
+    environment:
+      - MONGO_URI=${MONGO_URI}  # Will be picked from config.env
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
