@@ -37,6 +37,7 @@
     "mongoose": "^6.5.4",
     "nodemailer": "^6.7.8",
     "nodemailer-sendgrid": "^1.0.3",
+    "socket.io": "^4.8.0",
     "swagger-autogen": "^2.23.1",
     "swagger-ui-express": "^4.6.2",
     "validator": "^13.7.0",
