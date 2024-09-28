@@ -9,6 +9,10 @@ import swaggerFile from '../swagger_output.json';
 import { rateLimitMiddleware } from './middleware/rateLimit.middleware';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
+import passport from './config/passportLocal.config';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
+import { captureLastActive } from './middleware/userAgent.middleware';
 
 const app = express();
 
@@ -22,6 +26,15 @@ app.options('*', cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(loggerMiddleware);
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'secret',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI, stringify: false,  }),
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(captureLastActive); // Capture last active time of user
 
 // Security Middlewares
 app.use(rateLimitMiddleware);

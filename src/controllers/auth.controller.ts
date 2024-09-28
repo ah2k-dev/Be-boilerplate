@@ -5,6 +5,9 @@ import SuccessHandler from '../utils/successHandler';
 import ErrorHandler from '../utils/errorHandler';
 import { RequestHandler } from 'express';
 import * as authTypes from '../types/controllers/auth';
+import passport from 'passport';
+import { captureUserAgent } from '../middleware/userAgent.middleware';
+import mongoose from 'mongoose';
 //register
 const register: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
@@ -115,12 +118,10 @@ const verifyEmail: RequestHandler = async (req, res) => {
     user.emailVerified = true;
     user.emailVerificationToken = null;
     user.emailVerificationTokenExpires = null;
-    const jwtToken: string = user.getJWTToken();
     await user.save();
     return SuccessHandler({
       data: {
-        token: jwtToken,
-        user
+        message: 'Email verified successfully',
       },
       statusCode: 200,
       res
@@ -139,44 +140,49 @@ const verifyEmail: RequestHandler = async (req, res) => {
 const login: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
   try {
-    const { email, password } = req.body as authTypes.LoginBody;
-    const user: IUser | null = await User.findOne({ email }).select(
-      '+password'
-    );
-    if (!user) {
-      return ErrorHandler({
-        message: 'Invalid credentials',
-        statusCode: 400,
-        req,
-        res
+    //@ts-expect-error passport.authenticate has no return type
+    passport.authenticate('local', (err, user, info) => {
+      if (err) {
+        return ErrorHandler({
+          message: err.message,
+          statusCode: 500,
+          req,
+          res
+        });
+      }
+      if (!user) {
+        return ErrorHandler({
+          message: info.message,
+          statusCode: 400,
+          req,
+          res
+        });
+      }
+      if (!user.emailVerified) {
+        return ErrorHandler({
+          message: 'Email not verified',
+          statusCode: 400,
+          req,
+          res
+        });
+      }
+      req.logIn(user, (err) => {
+        if (err) {
+          return ErrorHandler({
+            message: err.message,
+            statusCode: 500,
+            req,
+            res
+          });
+        }
+        captureUserAgent(req, res, () => {
+          return res.status(200).json({
+            message: 'Login successful',
+          });
+        });
       });
-    }
-    const isMatch: boolean = await user.comparePassword(password);
-    if (!isMatch) {
-      return ErrorHandler({
-        message: 'Invalid credentials',
-        statusCode: 400,
-        req,
-        res
-      });
-    }
-    if (!user.emailVerified) {
-      return ErrorHandler({
-        message: 'Email not verified',
-        statusCode: 400,
-        req,
-        res
-      });
-    }
-    const jwtToken: string = user.getJWTToken();
-    return SuccessHandler({
-      data: {
-        token: jwtToken,
-        user
-      },
-      statusCode: 200,
-      res
-    });
+    })(req, res);
+
   } catch (error) {
     return ErrorHandler({
       message: (error as Error).message,
@@ -192,12 +198,24 @@ const logout: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    req.user = null;
-    return SuccessHandler({
-      data: 'Logged out successfully',
-      statusCode: 200,
-      res
+    req.logout((err)=>{
+      if(err){
+        return ErrorHandler({
+          message: err.message,
+          statusCode: 500,
+          req,
+          res
+        });
+      } 
+      req.session.destroy(()=>{
+        return SuccessHandler({
+          data: 'Logged out successfully',
+          statusCode: 200,
+          res
+        });
+      })
     });
+    
   } catch (error) {
     return ErrorHandler({
       message: (error as Error).message,
@@ -353,13 +371,45 @@ const updatePassword: RequestHandler = async (req, res) => {
   }
 };
 
+//me
+const me: RequestHandler = async (req, res) => {
+  // #swagger.tags = ['auth']
+  try {
+    const user = req.user;
+    const sessions = await mongoose.connection.db.collection('sessions').find({
+      'session.passport.user': user?._id.toString()
+    }).toArray();
+    return SuccessHandler({
+      data: {
+        user,
+        sessions: sessions.map((session: any) => ({
+          _id: session._id,
+          deviceInfo: session.session.deviceInfo,
+          lastActive: session.session.lastActive,
+          current: session._id === req.sessionID
+        }))
+      },
+      statusCode: 200,
+      res
+    });
+  } catch (error) {
+    return ErrorHandler({
+      message: (error as Error).message,
+      statusCode: 500,
+      req,
+      res
+    });
+  }
+}
+
 export {
   register,
   requestEmailToken,
   verifyEmail,
   login,
+  me,
   logout,
   forgotPassword,
   resetPassword,
-  updatePassword
+  updatePassword,
 };

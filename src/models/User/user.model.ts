@@ -1,11 +1,8 @@
 import mongoose, { Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 import validator from 'validator';
 import { IUser } from '../../types/models/user';
 
-dotenv.config({ path: '.././src/config/config.env' });
 const userSchema = new mongoose.Schema<IUser>({
   name: {
     type: String,
@@ -66,11 +63,6 @@ userSchema.pre<IUser>('save', async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
-
-// JWT Token
-userSchema.methods.getJWTToken = function (): string {
-  return jwt.sign({ _id: this._id }, process.env.JWT_SECRET as string);
-};
 
 // Compare password
 userSchema.methods.comparePassword = async function (

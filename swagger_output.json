@@ -7,21 +7,48 @@
   },
   "host": "localhost:8000",
   "basePath": "/",
-  "schemes": ["http"],
-  "consumes": ["application/json"],
-  "produces": ["application/json"],
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
   "paths": {
     "/auth/logout": {
       "get": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [],
         "responses": {}
       }
     },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/auth/register": {
       "post": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
           {
@@ -52,7 +79,9 @@
     },
     "/auth/login": {
       "post": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
           {
@@ -80,7 +109,9 @@
     },
     "/auth/requestEmailToken": {
       "post": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
           {
@@ -105,7 +136,9 @@
     },
     "/auth/verifyEmail": {
       "post": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
           {
@@ -133,7 +166,9 @@
     },
     "/auth/forgotPassword": {
       "post": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
           {
@@ -158,7 +193,9 @@
     },
     "/auth/resetPassword": {
       "put": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
           {
@@ -189,14 +226,11 @@
     },
     "/auth/updatePassword": {
       "put": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "description": "",
         "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
           {
             "name": "body",
             "in": "body",

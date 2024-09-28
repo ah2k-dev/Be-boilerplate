@@ -8,6 +8,7 @@ const router: Router = express.Router();
 
 // GET routes
 router.route('/logout').get(auth.logout);
+router.route('/me').get(isAuthenticated, auth.me);
 
 // POST routes
 router.route('/register').post(validate(schema.register), auth.register);

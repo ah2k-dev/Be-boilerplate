@@ -1,9 +1,20 @@
 import { Request, Response } from 'express';
 import { IUser } from './models/user';
+import 'express-session';
 
 declare module 'express-serve-static-core' {
   interface Request {
     user?: IUser | null;
+  }
+}
+declare module 'express-session' {
+  interface SessionData {
+    deviceInfo?: {
+      browser: string | undefined;
+      version: string | undefined;
+      os: string | undefined;
+    };
+    lastActive?: Date;
   }
 }
 
