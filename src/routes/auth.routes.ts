@@ -31,4 +31,9 @@ router
   .route('/updatePassword')
   .put(isAuthenticated, validate(schema.updatePassword), auth.updatePassword);
 
+// DELETE routes
+router
+  .route('/removeSessions')
+  .delete(isAuthenticated, validate(schema.removeSessions), auth.removeSessions);
+
 export default router;

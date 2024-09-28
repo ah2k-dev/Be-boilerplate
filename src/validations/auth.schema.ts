@@ -43,11 +43,16 @@ const updatePassword = Joi.object({
   })
 });
 
+const removeSessions = Joi.object({
+  sessionIds: Joi.array().items(Joi.string()).min(1).required()
+});
+
 export {
   register,
   requestEmailToken,
   verifyEmailToken,
   login,
   resetPassword,
-  updatePassword
+  updatePassword,
+  removeSessions
 };

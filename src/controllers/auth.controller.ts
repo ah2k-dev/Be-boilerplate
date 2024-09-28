@@ -1,5 +1,5 @@
 import User from '../models/User/user.model';
-import { IUser } from '../types/models/user';
+import { IUser, UserSession } from '../types/models/user';
 import sendMail from '../utils/sendMail';
 import SuccessHandler from '../utils/successHandler';
 import ErrorHandler from '../utils/errorHandler';
@@ -121,7 +121,7 @@ const verifyEmail: RequestHandler = async (req, res) => {
     await user.save();
     return SuccessHandler({
       data: {
-        message: 'Email verified successfully',
+        message: 'Email verified successfully'
       },
       statusCode: 200,
       res
@@ -140,6 +140,7 @@ const verifyEmail: RequestHandler = async (req, res) => {
 const login: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
   try {
+    const { email, password } = req.body as authTypes.LoginBody;
     //@ts-expect-error passport.authenticate has no return type
     passport.authenticate('local', (err, user, info) => {
       if (err) {
@@ -177,12 +178,11 @@ const login: RequestHandler = async (req, res) => {
         }
         captureUserAgent(req, res, () => {
           return res.status(200).json({
-            message: 'Login successful',
+            message: 'Login successful'
           });
         });
       });
     })(req, res);
-
   } catch (error) {
     return ErrorHandler({
       message: (error as Error).message,
@@ -198,24 +198,23 @@ const logout: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
 
   try {
-    req.logout((err)=>{
-      if(err){
+    req.logout((err) => {
+      if (err) {
         return ErrorHandler({
           message: err.message,
           statusCode: 500,
           req,
           res
         });
-      } 
-      req.session.destroy(()=>{
+      }
+      req.session.destroy(() => {
         return SuccessHandler({
           data: 'Logged out successfully',
           statusCode: 200,
           res
         });
-      })
+      });
     });
-    
   } catch (error) {
     return ErrorHandler({
       message: (error as Error).message,
@@ -323,7 +322,7 @@ const updatePassword: RequestHandler = async (req, res) => {
 
   try {
     const { currentPassword, newPassword } =
-      req.body as authTypes.UpdaatePasswordBody;
+      req.body as authTypes.UpdatePasswordBody;
 
     const user: IUser | null = await User.findById(req.user?._id).select(
       '+password'
@@ -336,7 +335,7 @@ const updatePassword: RequestHandler = async (req, res) => {
         res
       });
     }
-    const isMatch = await user?.comparePassword(currentPassword);
+    const isMatch: boolean = await user?.comparePassword(currentPassword);
     if (!isMatch) {
       return ErrorHandler({
         message: 'Invalid credentials',
@@ -345,7 +344,7 @@ const updatePassword: RequestHandler = async (req, res) => {
         res
       });
     }
-    const samePasswords = await user?.comparePassword(newPassword);
+    const samePasswords: boolean = await user?.comparePassword(newPassword);
     if (samePasswords) {
       return ErrorHandler({
         message: 'New password cannot be the same as the current password',
@@ -376,13 +375,16 @@ const me: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
   try {
     const user = req.user;
-    const sessions = await mongoose.connection.db.collection('sessions').find({
-      'session.passport.user': user?._id.toString()
-    }).toArray();
+    const sessions = (await mongoose.connection.db
+      .collection('sessions')
+      .find({
+        'session.passport.user': user?._id.toString()
+      })
+      .toArray()) as unknown as UserSession[];
     return SuccessHandler({
       data: {
         user,
-        sessions: sessions.map((session: any) => ({
+        sessions: sessions.map((session) => ({
           _id: session._id,
           deviceInfo: session.session.deviceInfo,
           lastActive: session.session.lastActive,
@@ -400,7 +402,43 @@ const me: RequestHandler = async (req, res) => {
       res
     });
   }
-}
+};
+
+const removeSessions: RequestHandler = async (req, res) => {
+  try {
+    const { sessionIds } = req.body as authTypes.RemoveSessionsBody;
+    const user = req.user;
+    await mongoose.connection.db.collection('sessions').deleteMany({
+      _id: { $in: sessionIds },
+      'session.passport.user': user?._id.toString()
+    });
+    // if current session is removed, destroy it
+    if (sessionIds.includes(req.sessionID)) {
+      req.logout((err) => {
+        if (err) {
+          throw new Error(err.message);
+        }
+        req.session.destroy((err) => {
+          if (err) {
+            throw new Error(err.message);
+          }
+        });
+      });
+    }
+    return SuccessHandler({
+      data: 'Sessions removed successfully',
+      statusCode: 200,
+      res
+    });
+  } catch (error) {
+    return ErrorHandler({
+      message: (error as Error).message,
+      statusCode: 500,
+      req,
+      res
+    });
+  }
+};
 
 export {
   register,
@@ -412,4 +450,5 @@ export {
   forgotPassword,
   resetPassword,
   updatePassword,
+  removeSessions
 };

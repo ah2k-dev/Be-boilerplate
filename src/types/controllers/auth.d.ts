@@ -24,9 +24,13 @@ interface ResetPasswordBody {
   passwordResetToken: number;
 }
 
-interface UpdaatePasswordBody {
+interface UpdatePasswordBody {
   currentPassword: string;
   newPassword: string;
+}
+
+interface RemoveSessionsBody {
+  sessionIds: string[];
 }
 
 export {
@@ -35,5 +39,6 @@ export {
   VerifyEmailTokenBody,
   LoginBody,
   ResetPasswordBody,
-  UpdaatePasswordBody
+  UpdatePasswordBody,
+  RemoveSessionsBody
 };

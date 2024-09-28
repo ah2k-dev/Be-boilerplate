@@ -27,7 +27,6 @@ passport.use(
   )
 );
 
-// linting error ignore
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 passport.serializeUser((user:any, done) => {
   done(null, user.id);
