@@ -141,6 +141,7 @@ const login: RequestHandler = async (req, res) => {
   // #swagger.tags = ['auth']
   try {
     const { email, password } = req.body as authTypes.LoginBody;
+    console.log(email, password);
     //@ts-expect-error passport.authenticate has no return type
     passport.authenticate('local', (err, user, info) => {
       if (err) {
