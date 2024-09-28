@@ -27,34 +27,31 @@ const userSchema = new mongoose.Schema<IUser>({
     enum: ['user', 'admin'],
     default: 'user'
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
   emailVerified: {
     type: Boolean,
     default: false
   },
   emailVerificationToken: {
-    type: Number
+    type: Number,
+    default: null,
   },
   emailVerificationTokenExpires: {
-    type: Date
+    type: Date,
+    default: null,
   },
   passwordResetToken: {
-    type: Number
+    type: Number,
+    default: null
   },
   passwordResetTokenExpires: {
-    type: Date
-  },
-  lastLogin: {
-    type: Date
+    type: Date,
+    default: null
   },
   isActive: {
     type: Boolean,
     default: true
   }
-});
+}, { timestamps: true });
 
 // Hash password before saving
 userSchema.pre<IUser>('save', async function (next) {

@@ -403,3 +403,9 @@
 {"date":"2024-09-28T00:39:46.342Z","level":"info","message":"Request received","method":"GET","service":"user-service","url":"/auth/me"}
 {"date":"2024-09-28T00:40:23.066Z","level":"info","message":"Request received","method":"GET","service":"user-service","url":"/auth/me"}
 {"date":"2024-09-28T00:41:36.614Z","level":"info","message":"Request received","method":"GET","service":"user-service","url":"/auth/me"}
+{"date":"2024-09-28T01:05:55.240Z","level":"info","message":"Request received","method":"POST","service":"user-service","url":"/auth/login"}
+{"date":"2024-09-28T01:08:28.571Z","level":"info","message":"Request received","method":"POST","service":"user-service","url":"/auth/register"}
+{"date":"2024-09-28T01:08:41.354Z","level":"info","message":"Request received","method":"POST","service":"user-service","url":"/auth/login"}
+{"date":"2024-09-28T01:11:11.298Z","level":"info","message":"Request received","method":"POST","service":"user-service","url":"/auth/register"}
+{"date":"2024-09-28T01:18:58.281Z","level":"info","message":"Request received","method":"POST","service":"user-service","url":"/auth/login"}
+{"date":"2024-09-28T01:19:01.184Z","level":"error","message":"Unsupported BSON version, bson types must be from bson 6.x.x","method":"POST","service":"user-service","url":"/login"}
