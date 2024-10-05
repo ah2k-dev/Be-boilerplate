@@ -19,10 +19,11 @@ const app = express();
 // Middlewares
 app.use(express.json());
 app.use(cors({
-  origin: '*', // allow all origins (for now)
+  origin: '*', // allow all origins for now origin must not be wild card for cookies to work
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true
 }));
-app.options('*', cors());
+app.options('*', cors()); // // allow all origins for now origin must not be wild card for cookies to work
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(loggerMiddleware);
@@ -31,6 +32,10 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: process.env.MONGO_URI, stringify: false,  }),
+  cookie: {
+    sameSite: 'lax', // strict for same
+    // define max age, httpOnly etc if needed
+  }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -43,8 +48,6 @@ app.use(helmet.noSniff()); // Prevent MIME-type sniffing
 app.use(helmet.referrerPolicy({ policy: 'no-referrer' })) // Prevent Referrer-Policy
 app.use(helmet.xssFilter()); // Prevent Cross-Site Scripting (XSS)
 app.use(mongoSanitize()); // Prevent NoSQL Injection
-
-
 
 // router index
 app.use('/', router);

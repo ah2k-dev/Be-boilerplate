@@ -7,7 +7,7 @@ import { socketService } from './sockets/socketService';
 dotenv.config({ path: './src/config/config.env' }); //load env vars
 
 //server setup
-const PORT = process.env.PORT || 8001;
+const PORT = process.env.PORT || 8000;
 
 const server = http.createServer(app);
 socketService.initialize(server);
