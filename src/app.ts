@@ -13,17 +13,30 @@ import passport from './config/passportLocal.config';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import { captureLastActive } from './middleware/userAgent.middleware';
+import { CookieOptions } from 'express-session';
 
 const app = express();
+const cookieOptions: CookieOptions = {
+  maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: false,
+};
+
+if(process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1); // trust first proxy
+  cookieOptions.secure = true; // serve secure cookies
+  cookieOptions.sameSite = 'none'; // serve secure cookies
+}
 
 // Middlewares
 app.use(express.json());
 app.use(cors({
-  origin: '*', // allow all origins for now origin must not be wild card for cookies to work
+  origin: process.env.FE_URL || `http://localhost:5173`,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true
 }));
-app.options('*', cors()); // // allow all origins for now origin must not be wild card for cookies to work
+app.options(process.env.FE_URL || `http://localhost:5173`, cors()); 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(loggerMiddleware);
@@ -32,11 +45,9 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: process.env.MONGO_URI, stringify: false,  }),
-  cookie: {
-    sameSite: 'lax', // strict for same
-    // define max age, httpOnly etc if needed
-  }
+  cookie: cookieOptions
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(captureLastActive); // Capture last active time of user

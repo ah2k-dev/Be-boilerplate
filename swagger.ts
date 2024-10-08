@@ -8,7 +8,7 @@ const doc: SwaggerDoc = {
       'API Documentation for Node + Express + MongoDB Ts Boilerplate',
     version: '1.0.0'
   },
-  host: 'localhost:8000',
+  host: process.env.BE_URL || 'localhost:8000',
   basePath: '/',
   schemes: ['http'],
   consumes: ['application/json'],
